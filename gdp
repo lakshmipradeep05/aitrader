@@ -1,68 +1,8 @@
+import wbdata
 import pandas as pd
-import yfinance as yf
-import matplotlib.pyplot as plt
-import warnings
-
-warnings.simplefilter(action='ignore', category=FutureWarning)
-
-def fetch_gdp_data():
-    data = {
-        "Year": [2018, 2019, 2020, 2021, 2022],
-        "GDP": [2.7, 2.9, -7.3, 8.7, 7.2],
-    }
-    return pd.DataFrame(data)
-
-def fetch_stock_data(ticker="RELIANCE.NS", start="2018-01-01", end="2023-12-31"):
-    df_stock = yf.download(ticker, start=start, end=end)
-    df_stock.reset_index(inplace=True)
-    df_stock['Year'] = pd.to_datetime(df_stock['Date']).dt.year
-    df_yearly = df_stock.groupby('Year', as_index=False)['Close'].mean()
-    df_yearly.columns = ['Year', 'Avg_Close']
-
-    df_yearly.rename(columns={'Close': 'Avg_Close'}, inplace=True)
-    return df_yearly
-
-def plot_gdp_vs_stock():
-    gdp_df = fetch_gdp_data()
-    stock_df = fetch_stock_data()
-
-    # ⬇️ Print debug info
-    print("\n--- GDP DataFrame ---")
-    print("Columns:", gdp_df.columns)
-    print("Index:", gdp_df.index)
-    print(gdp_df)
-
-    print("\n--- Stock DataFrame ---")
-    print("Columns:", stock_df.columns)
-    print("Index:", stock_df.index)
-    print(stock_df)
-
-    # Merge (fails now, but we want to see what’s wrong)
-    merged = pd.merge(gdp_df, stock_df, on="Year", how="inner")
-
-    # Plot if no error
-    print("\n--- Merged Data ---")
-    print(merged)
-    # Start plotting
-    fig, ax1 = plt.subplots()
-
-    # GDP on left y-axis (blue)
-    ax1.set_xlabel('Year')
-    ax1.set_ylabel('GDP Growth (%)', color='tab:blue')
-    ax1.plot(merged['Year'], merged['GDP'], color='tab:blue', marker='o')
-    ax1.tick_params(axis='y', labelcolor='tab:blue')
-
-    # Stock price on right y-axis (green)
-    ax2 = ax1.twinx()
-    ax2.set_ylabel('Avg Stock Price', color='tab:green')
-    ax2.plot(merged['Year'], merged['Avg_Close'], color='tab:green', marker='s')
-    ax2.tick_params(axis='y', labelcolor='tab:green')
-
-    plt.title('GDP Growth vs Stock Price')
-    plt.grid(True)
-    plt.tight_layout()
-    plt.show()  # 👈 THIS displays the graph
-
-
-if __name__ == "__main__":
-    plot_gdp_vs_stock()
+country="IN"
+indicator={"NY.GDP.MKTP.CD":"GDP(USD)"}
+df=wbdata.get_dataframe(indicator,country=country)
+df=df.reset_index()
+df=df.dropna(subset=["GDP(USD)"])
+print(df)
