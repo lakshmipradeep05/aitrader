@@ -1,8 +1,20 @@
 import wbdata
 import pandas as pd
-country="IN"
-indicator={"NY.GDP.MKTP.CD":"GDP(USD)"}
-df=wbdata.get_dataframe(indicator,country=country)
-df=df.reset_index()
-df=df.dropna(subset=["GDP(USD)"])
-print(df)
+from pytz import country_names
+
+
+class GDP:
+    def __init__(self,countrycode="IN",indicator="NY.GDP.MKTP.CD"):
+        self.country=countrycode
+        self.indicator={indicator:"GDP(USD)"}
+        self.df=None
+    def fetchgdp(self):
+        self.df=wbdata.get_dataframe(self.indicator,country=self.country)
+        self.df=self.df.reset_index()
+        self.df=self.df.dropna(subset=["GDP(USD)"])
+        return self.df
+
+if __name__=="__main__":
+    gdp=GDP()
+    df=gdp.fetchgdp()
+    print(df)
